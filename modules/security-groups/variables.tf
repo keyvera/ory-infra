@@ -18,16 +18,28 @@ variable "vpc_cidr" {
   type        = string
 }
 
-variable "public_port" {
-  description = "Public API port"
+variable "kratos_public_port" {
+  description = "Kratos public API port"
   type        = number
   default     = 4433
 }
 
-variable "admin_port" {
-  description = "Admin API port"
+variable "kratos_admin_port" {
+  description = "Kratos admin API port"
   type        = number
   default     = 4434
+}
+
+variable "hydra_public_port" {
+  description = "Hydra public API port"
+  type        = number
+  default     = 4444
+}
+
+variable "hydra_admin_port" {
+  description = "Hydra admin API port"
+  type        = number
+  default     = 4445
 }
 
 variable "allowed_security_group_ids" {

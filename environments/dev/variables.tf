@@ -36,8 +36,8 @@ variable "hosted_zone_id" {
   type        = string
 }
 
-variable "domain" {
-  description = "Domain name for the public endpoint"
+variable "kratos_domain" {
+  description = "Domain for Kratos public endpoint (e.g., identity.oauthentra.com)"
   type        = string
   default     = "identity.oauthentra.com"
 }
@@ -54,32 +54,32 @@ variable "kratos_image_tag" {
   default     = "v25.4.0-distroless"
 }
 
-variable "public_port" {
-  description = "Public API port"
+variable "kratos_public_port" {
+  description = "Kratos public API port"
   type        = number
   default     = 4433
 }
 
-variable "admin_port" {
-  description = "Admin API port"
+variable "kratos_admin_port" {
+  description = "Kratos admin API port"
   type        = number
   default     = 4434
 }
 
-variable "cpu" {
-  description = "CPU units for ECS tasks (1024 = 1 vCPU)"
+variable "kratos_cpu" {
+  description = "CPU units for Kratos ECS tasks (1024 = 1 vCPU)"
   type        = number
   default     = 256  # Cost-optimized for dev
 }
 
-variable "memory" {
-  description = "Memory for ECS tasks in MB"
+variable "kratos_memory" {
+  description = "Memory for Kratos ECS tasks in MB"
   type        = number
   default     = 512  # Cost-optimized for dev
 }
 
-variable "desired_count" {
-  description = "Desired number of tasks"
+variable "kratos_desired_count" {
+  description = "Desired number of Kratos tasks"
   type        = number
   default     = 1  # Cost-optimized for dev
 }
@@ -120,8 +120,90 @@ variable "kratos_secrets" {
   default     = []
 }
 
-variable "secrets_manager_secret_arns" {
-  description = "List of Secrets Manager secret ARN patterns for IAM (e.g. [\"arn:aws:secretsmanager:us-east-1:ACCOUNT:secret:dev/kratos*\"])"
+variable "kratos_secrets_manager_secret_arns" {
+  description = "List of Secrets Manager secret ARN patterns for Kratos IAM"
   type        = list(string)
   default     = []
+}
+
+# ACM: Add auth.oauthentra.com for Hydra
+variable "acm_subject_alternative_names" {
+  description = "Additional domains for ACM certificate (e.g., auth.oauthentra.com for Hydra)"
+  type        = list(string)
+  default     = ["auth.oauthentra.com"]
+}
+
+# Route53: Add auth.oauthentra.com record
+
+# Hydra configuration
+variable "hydra_domain" {
+  description = "Domain for Hydra public endpoint"
+  type        = string
+  default     = "auth.oauthentra.com"
+}
+
+variable "hydra_public_port" {
+  description = "Hydra public API port (OAuth2/OIDC)"
+  type        = number
+  default     = 4444
+}
+
+variable "hydra_admin_port" {
+  description = "Hydra admin API port"
+  type        = number
+  default     = 4445
+}
+
+variable "hydra_image" {
+  description = "Hydra Docker image"
+  type        = string
+  default     = "oryd/hydra"
+}
+
+variable "hydra_image_tag" {
+  description = "Hydra Docker image tag"
+  type        = string
+  default     = "v2.4.2"
+}
+
+variable "hydra_cpu" {
+  description = "CPU units for Hydra ECS tasks"
+  type        = number
+  default     = 256
+}
+
+variable "hydra_memory" {
+  description = "Memory for Hydra ECS tasks in MB"
+  type        = number
+  default     = 512
+}
+
+variable "hydra_desired_count" {
+  description = "Desired number of Hydra tasks"
+  type        = number
+  default     = 1
+}
+
+variable "hydra_environment_vars" {
+  description = "Environment variables for Hydra containers"
+  type        = list(map(string))
+  default     = []
+}
+
+variable "hydra_secrets" {
+  description = "Secrets for Hydra containers (from Secrets Manager)"
+  type        = list(map(string))
+  default     = []
+}
+
+variable "hydra_secrets_manager_secret_arns" {
+  description = "List of Secrets Manager secret ARN patterns for Hydra IAM"
+  type        = list(string)
+  default     = []
+}
+
+variable "hydra_s3_config_key" {
+  description = "S3 object key for Hydra config (shared bucket)"
+  type        = string
+  default     = "hydra-config.yaml"
 }

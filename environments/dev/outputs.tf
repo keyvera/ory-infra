@@ -1,6 +1,6 @@
 output "public_endpoint" {
   description = "Public endpoint URL"
-  value       = "https://${var.domain}"
+  value       = "https://${var.kratos_domain}"
 }
 
 output "public_alb_dns_name" {
@@ -35,10 +35,26 @@ output "s3_config_bucket_name" {
 
 output "ecs_security_group_ids" {
   description = "ECS security group IDs (for migration task network config)"
-  value       = [module.security_groups.ecs_tasks_security_group_id]
+  value       = [module.security_groups.kratos_ecs_tasks_security_group_id]
 }
 
 output "ecs_task_role_arn" {
   description = "ECS task role ARN"
   value       = aws_iam_role.ecs_task.arn
+}
+
+# Hydra outputs
+output "hydra_public_endpoint" {
+  description = "Hydra public endpoint URL (OAuth2/OIDC)"
+  value       = "https://${var.hydra_domain}"
+}
+
+output "hydra_admin_endpoint" {
+  description = "Hydra admin API endpoint (private DNS, VPC-only)"
+  value       = module.hydra_ecs.admin_endpoint
+}
+
+output "hydra_ecs_cluster_id" {
+  description = "Hydra ECS cluster ID"
+  value       = module.hydra_ecs.cluster_id
 }

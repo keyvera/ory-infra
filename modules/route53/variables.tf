@@ -3,8 +3,8 @@ variable "hosted_zone_id" {
   type        = string
 }
 
-variable "domain" {
-  description = "Domain name for the public endpoint"
+variable "kratos_record_name" {
+  description = "Route53 record name for Kratos (subdomain, e.g., identity for identity.oauthentra.com)"
   type        = string
 }
 
@@ -16,6 +16,12 @@ variable "alb_dns_name" {
 variable "alb_zone_id" {
   description = "Zone ID of the ALB"
   type        = string
+}
+
+variable "hydra_record_name" {
+  description = "Route53 record name for Hydra (subdomain, e.g., auth for auth.oauthentra.com). Empty string to disable."
+  type        = string
+  default     = ""
 }
 
 variable "common_tags" {

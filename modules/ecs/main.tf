@@ -42,7 +42,7 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution" {
 
 # Secrets Manager policy for task execution role (required for pulling secrets into containers)
 resource "aws_iam_role_policy" "ecs_task_execution_secrets" {
-  count = length(var.secrets_manager_secret_arns) > 0 ? 1 : 0
+  count = length(var.kratos_secrets_manager_secret_arns) > 0 ? 1 : 0
 
   name = "${var.app_name}-${var.environment}-kratos-task-execution-secrets"
   role = aws_iam_role.ecs_task_execution.id
@@ -53,7 +53,7 @@ resource "aws_iam_role_policy" "ecs_task_execution_secrets" {
       {
         Effect   = "Allow"
         Action   = ["secretsmanager:GetSecretValue"]
-        Resource = var.secrets_manager_secret_arns
+        Resource = var.kratos_secrets_manager_secret_arns
       }
     ]
   })
@@ -87,10 +87,10 @@ resource "aws_ecs_task_definition" "kratos" {
   family                   = "${var.app_name}-${var.environment}-kratos"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  cpu                      = var.cpu
-  memory                   = var.memory
+  cpu                      = var.kratos_cpu
+  memory                   = var.kratos_memory
   execution_role_arn       = aws_iam_role.ecs_task_execution.arn
-  task_role_arn            = var.ecs_task_role_arn
+  task_role_arn            = var.kratos_ecs_task_role_arn
 
   container_definitions = jsonencode([
     # 1. Download config from S3
@@ -113,7 +113,7 @@ resource "aws_ecs_task_definition" "kratos" {
       environment = [
         {
           name  = "S3_BUCKET"
-          value = var.s3_config_bucket_name
+          value = var.kratos_s3_config_bucket_name
         },
         {
           name  = "CONFIG_PATH"
@@ -186,11 +186,11 @@ resource "aws_ecs_task_definition" "kratos" {
       # Single container exposes both public and admin ports
       portMappings = [
         {
-          containerPort = var.public_port
+          containerPort = var.kratos_public_port
           protocol      = "tcp"
         },
         {
-          containerPort = var.admin_port
+          containerPort = var.kratos_admin_port
           protocol      = "tcp"
         }
       ]
@@ -220,7 +220,7 @@ resource "aws_ecs_task_definition" "kratos" {
 
       # Health check on public port (admin is internal-only)
       healthCheck = {
-        command     = ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:${var.public_port}/health/ready || exit 1"]
+        command     = ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:${var.kratos_public_port}/health/ready || exit 1"]
         interval    = 30
         timeout     = 5
         retries     = 3
@@ -286,20 +286,20 @@ resource "aws_ecs_service" "kratos" {
   name            = "${var.app_name}-${var.environment}-kratos"
   cluster         = aws_ecs_cluster.kratos.id
   task_definition = aws_ecs_task_definition.kratos.arn
-  desired_count   = var.desired_count
+  desired_count   = var.kratos_desired_count
   launch_type     = "FARGATE"
 
   network_configuration {
     subnets          = var.subnet_ids
-    security_groups  = [var.ecs_tasks_security_group_id]
+    security_groups  = [var.kratos_ecs_tasks_security_group_id]
     assign_public_ip = true
   }
 
   # Public API: identity.oauthentra.com -> ALB -> port 4433
   load_balancer {
-    target_group_arn = var.public_target_group_arn
+    target_group_arn = var.kratos_target_group_arn
     container_name   = "kratos"
-    container_port   = var.public_port
+    container_port   = var.kratos_public_port
   }
 
   # Admin API: kratos-admin.<namespace> -> port 4434 (VPC-only, restricted by ECS SG)
@@ -311,7 +311,7 @@ resource "aws_ecs_service" "kratos" {
 
   depends_on = [
     aws_ecs_task_definition.kratos,
-    var.public_target_group_arn
+    var.kratos_target_group_arn
   ]
 
   tags = merge(

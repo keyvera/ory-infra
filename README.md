@@ -4,12 +4,14 @@ Production-grade Terraform infrastructure for deploying [Ory Kratos](https://www
 
 ## Architecture
 
-- **Public Endpoint**: `https://identity.<your-domain>` - Internet-accessible via Application Load Balancer
-- **Admin Endpoint**: Internal ALB accessible only within AWS VPC (traffic restricted by security groups)
-- **Compute**: ECS Fargate service running Kratos container serving both public (4433) and admin (4434) APIs
-- **Database**: PostgreSQL (connection string provided via AWS Secrets Manager)
-- **Configuration Storage**: S3 bucket for Kratos config files (downloaded at startup via init container)
-- **Networking**: Public and private subnets, security groups for isolation
+- **Kratos Public Endpoint**: `https://identity.<your-domain>` - Identity management via shared ALB
+- **Hydra Public Endpoint**: `https://auth.<your-domain>` - OAuth2/OIDC via shared ALB
+- **Shared ALB**: Host-based routing (identity → Kratos, auth → Hydra)
+- **Admin Endpoints**: Internal Service Discovery (VPC-only, restricted by security groups)
+- **Compute**: ECS Fargate for Kratos and Hydra (init containers for migrations)
+- **Database**: PostgreSQL (connection strings via AWS Secrets Manager)
+- **Configuration Storage**: S3 bucket for Kratos + Hydra config (shared bucket, different keys)
+- **Networking**: Public subnets, security groups for isolation
 
 ## Prerequisites
 
@@ -25,14 +27,16 @@ Production-grade Terraform infrastructure for deploying [Ory Kratos](https://www
 
 ```
 kratos-infra/
-├── config/                    # Kratos configuration files (customize before deploy)
-│   ├── kratos-config.yaml     # Production Kratos config - replace placeholders
+├── config/                    # Ory configuration files (customize before deploy)
+│   ├── kratos-config.yaml     # Kratos config
+│   ├── hydra-config.yaml      # Hydra config (OAuth2/OIDC)
 │   └── identity.schema.json   # Identity schema definition
 ├── modules/                   # Reusable Terraform modules
-│   ├── acm/                   # SSL certificate management
-│   ├── alb/                   # Application Load Balancer
+│   ├── acm/                   # SSL certificate management (identity + auth)
+│   ├── alb/                   # Shared ALB with host-based routing
 │   ├── cloudwatch/            # CloudWatch log groups
-│   ├── ecs/                   # ECS cluster, services, task definitions
+│   ├── ecs/                   # Kratos ECS cluster, service, task definition
+│   ├── hydra-ecs/             # Hydra ECS cluster, service, task definition
 │   ├── s3/                    # S3 bucket for config storage
 │   ├── route53/               # Route53 DNS records
 │   └── security-groups/        # Security groups
@@ -58,7 +62,7 @@ See [QUICKSTART.md](./QUICKSTART.md) for step-by-step deployment instructions.
 | `vpc_cidr` | VPC CIDR block |
 | `public_subnet_ids` | Public subnet IDs for ALB and ECS |
 | `hosted_zone_id` | Route53 hosted zone ID |
-| `domain` | Domain for public endpoint (e.g., `identity.example.com`) |
+| `kratos_domain` | Domain for Kratos public endpoint (e.g., `identity.example.com`) |
 
 ### Secrets Management
 

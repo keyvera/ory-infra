@@ -54,10 +54,37 @@ resource "aws_s3_bucket_public_access_block" "kratos_config" {
 #   }
 # }
 
-# IAM Policy for ECS Tasks to Read from S3
-resource "aws_iam_role_policy" "ecs_task_s3_read" {
-  name = "${var.app_name}-${var.environment}-ecs-task-s3-read"
-  role = var.ecs_task_role_id
+# IAM Policy for Kratos ECS Task to Read from S3
+resource "aws_iam_role_policy" "kratos_ecs_task_s3_read" {
+  name = "${var.app_name}-${var.environment}-kratos-s3-config-read"
+  role = var.kratos_ecs_task_role_id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:GetObjectVersion"
+        ]
+        Resource = "${aws_s3_bucket.kratos_config.arn}/*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:ListBucket"
+        ]
+        Resource = aws_s3_bucket.kratos_config.arn
+      }
+    ]
+  })
+}
+
+# IAM Policy for Hydra ECS Task to Read from S3
+resource "aws_iam_role_policy" "hydra_ecs_task_s3_read" {
+  name = "${var.app_name}-${var.environment}-hydra-s3-config-read"
+  role = var.hydra_ecs_task_role_id
 
   policy = jsonencode({
     Version = "2012-10-17"

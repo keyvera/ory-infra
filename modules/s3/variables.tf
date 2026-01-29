@@ -8,8 +8,13 @@ variable "environment" {
   type        = string
 }
 
-variable "ecs_task_role_id" {
-  description = "ECS task role ID for S3 access"
+variable "kratos_ecs_task_role_id" {
+  description = "Kratos ECS task role ID (name) for S3 config access"
+  type        = string
+}
+
+variable "hydra_ecs_task_role_id" {
+  description = "Hydra ECS task role ID (name) for S3 config access"
   type        = string
 }
 

@@ -1,0 +1,81 @@
+# Ory Hydra Configuration for AWS ECS
+# Values like DSN, URLs, and secrets should be set via environment variables.
+# See CONFIGURATION.md for Hydra environment variable mapping.
+
+serve:
+  public:
+    port: 4444
+    host: 0.0.0.0
+    cors:
+      enabled: true
+      allowed_origins:
+        - "*"
+      allowed_methods:
+        - GET
+        - POST
+        - PUT
+        - DELETE
+        - PATCH
+        - OPTIONS
+      allowed_headers:
+        - Authorization
+        - Content-Type
+        - X-Requested-With
+      exposed_headers:
+        - Content-Type
+      allow_credentials: true
+      max_age: 0
+  admin:
+    port: 4445
+    host: 0.0.0.0
+    cors:
+      enabled: true
+      allowed_origins:
+        - "*"
+      allowed_methods:
+        - GET
+        - POST
+        - PUT
+        - DELETE
+        - PATCH
+        - OPTIONS
+      allowed_headers:
+        - Authorization
+        - Content-Type
+        - X-Requested-With
+      exposed_headers:
+        - Content-Type
+      allow_credentials: true
+      max_age: 0
+
+# URLs: Override via environment variables (URLS_SELF_ISSUER, URLS_CONSENT, etc.)
+# DSN: Set via DSN environment variable (required)
+urls:
+  self:
+    issuer: "https://auth.oauthentra.com/"
+  consent: "https://login.oauthentra.com/consent"
+  login: "https://identity.oauthentra.com/self-service/login/browser"
+  error: "https://login.oauthentra.com/error"
+  logout: "https://identity.oauthentra.com/self-service/logout/browser"
+  post_logout_redirect: "https://login.oauthentra.com/"
+  registration: "https://identity.oauthentra.com/self-service/registration/browser"
+
+strategies:
+  access_token: jwt
+  scope: exact
+
+oauth2:
+  expose_internal_errors: false
+  hashers:
+    algorithm: bcrypt
+    bcrypt:
+      cost: 12
+  session:
+    encrypt_at_rest: true
+  pkce:
+    enforced: true
+    enforced_for_public_clients: true
+
+log:
+  level: info
+  format: json

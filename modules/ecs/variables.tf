@@ -30,43 +30,43 @@ variable "kratos_image_tag" {
   default     = "v25.4.0-distroless"
 }
 
-variable "public_port" {
-  description = "Public API port"
+variable "kratos_public_port" {
+  description = "Kratos public API port"
   type        = number
   default     = 4433
 }
 
-variable "admin_port" {
-  description = "Admin API port"
+variable "kratos_admin_port" {
+  description = "Kratos admin API port"
   type        = number
   default     = 4434
 }
 
-variable "cpu" {
-  description = "CPU units for ECS tasks (1024 = 1 vCPU)"
+variable "kratos_cpu" {
+  description = "CPU units for Kratos ECS tasks (1024 = 1 vCPU)"
   type        = number
   default     = 512
 }
 
-variable "memory" {
-  description = "Memory for ECS tasks in MB"
+variable "kratos_memory" {
+  description = "Memory for Kratos ECS tasks in MB"
   type        = number
   default     = 1024
 }
 
-variable "desired_count" {
-  description = "Desired number of tasks"
+variable "kratos_desired_count" {
+  description = "Desired number of Kratos tasks"
   type        = number
   default     = 1
 }
 
-variable "ecs_tasks_security_group_id" {
-  description = "Security group ID for ECS tasks (public + admin)"
+variable "kratos_ecs_tasks_security_group_id" {
+  description = "Security group ID for Kratos ECS tasks"
   type        = string
 }
 
-variable "public_target_group_arn" {
-  description = "Target group ARN for public API"
+variable "kratos_target_group_arn" {
+  description = "Target group ARN for Kratos public API"
   type        = string
 }
 
@@ -97,19 +97,19 @@ variable "kratos_secrets" {
   default     = []
 }
 
-variable "secrets_manager_secret_arns" {
-  description = "List of Secrets Manager secret ARNs (or patterns with *) the task execution role can read. E.g. [\"arn:aws:secretsmanager:region:account:secret:dev/kratos*\"]"
+variable "kratos_secrets_manager_secret_arns" {
+  description = "List of Secrets Manager secret ARNs the Kratos task execution role can read"
   type        = list(string)
   default     = []
 }
 
-variable "s3_config_bucket_name" {
+variable "kratos_s3_config_bucket_name" {
   description = "S3 bucket name for Kratos config files"
   type        = string
 }
 
-variable "ecs_task_role_arn" {
-  description = "ECS task role ARN (created in environment file)"
+variable "kratos_ecs_task_role_arn" {
+  description = "Kratos ECS task role ARN (created in environment file)"
   type        = string
 }
 

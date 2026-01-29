@@ -48,7 +48,7 @@ vpc_id            = "vpc-xxxxxxxxx"
 vpc_cidr          = "10.0.0.0/16"
 public_subnet_ids = ["subnet-xxx", "subnet-yyy"]
 hosted_zone_id    = "Z1234567890ABC"
-domain            = "identity.your-domain.com"
+kratos_domain     = "identity.your-domain.com"
 ```
 
 ## Step 4: Customize Kratos Config
@@ -103,7 +103,7 @@ terraform plan
 terraform apply
 ```
 
-This creates: ECS cluster, ALB, security groups, S3 bucket, ACM certificate, Route53 record, CloudWatch log groups.
+This creates: ECS cluster (Kratos + Hydra), shared ALB with host-based routing, security groups, S3 bucket, ACM certificate (identity + auth), Route53 records, CloudWatch log groups.
 
 ## Step 7: Upload Config to S3
 
@@ -113,6 +113,8 @@ cd ../..
 ./scripts/upload-config-to-s3.sh "$BUCKET_NAME" ./config
 ```
 
+This uploads `kratos-config.yaml`, `identity.schema.json`, and `hydra-config.yaml` to the shared bucket.
+
 ## Step 8: Verify Deployment
 
 ```bash
@@ -120,6 +122,7 @@ cd environments/dev
 
 # Health check (replace with your domain)
 curl https://identity.your-domain.com/health/ready
+curl https://auth.your-domain.com/health/alive
 
 # ECS service status
 aws ecs describe-services \

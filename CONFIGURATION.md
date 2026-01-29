@@ -39,6 +39,29 @@ Before deployment, edit `config/kratos-config.yaml` and replace placeholders:
 2. Upload to S3: `./scripts/upload-config-to-s3.sh $BUCKET_NAME ./config`
 3. Restart ECS service to pick up changes (or wait for next deployment)
 
+## Hydra Configuration
+
+Hydra config is stored at `config/hydra-config.yaml` and uploaded to S3 with key `hydra-config.yaml` (same bucket as Kratos, different key).
+
+### Required Hydra Secrets (Secrets Manager)
+
+- `DSN` - PostgreSQL connection string (can share DB with Kratos or use separate database)
+
+### Hydra Environment Variables (optional overrides)
+
+- `URLS_SELF_ISSUER` - OAuth2 issuer URL (e.g., https://auth.oauthentra.com/)
+- `URLS_CONSENT`, `URLS_LOGIN`, `URLS_LOGOUT`, etc. - Override URLs in config
+
+### Upload Hydra Config
+
+The same upload script uploads both Kratos and Hydra config:
+
+```bash
+./scripts/upload-config-to-s3.sh "$BUCKET_NAME" ./config
+```
+
+This uploads `kratos-config.yaml`, `identity.schema.json`, and `hydra-config.yaml`.
+
 ## Required Secrets
 
 ### Cookie Secrets

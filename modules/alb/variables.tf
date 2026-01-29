@@ -28,10 +28,26 @@ variable "certificate_arn" {
   type        = string
 }
 
-variable "public_port" {
-  description = "Public API port"
+variable "kratos_public_port" {
+  description = "Kratos public API port"
   type        = number
   default     = 4433
+}
+
+variable "kratos_host" {
+  description = "Host header for Kratos routing (e.g., identity.oauthentra.com)"
+  type        = string
+}
+
+variable "hydra_public_port" {
+  description = "Hydra public API port"
+  type        = number
+  default     = 4444
+}
+
+variable "hydra_host" {
+  description = "Host header for Hydra routing (e.g., auth.oauthentra.com)"
+  type        = string
 }
 
 variable "access_logs_bucket" {

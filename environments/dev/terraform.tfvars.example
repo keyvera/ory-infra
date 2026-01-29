@@ -14,17 +14,23 @@ public_subnet_ids = ["subnet-xxxxxxxxx", "subnet-yyyyyyyyy"]
 
 # Route53 Configuration
 hosted_zone_id = "Z1234567890ABC"
-domain         = "identity.<hostedzone>" # e.g. identity.example.com
+kratos_domain  = "identity.<hostedzone>" # e.g. identity.example.com
+
+acm_subject_alternative_names = ["<subdomain>.oauthentra.com", "*.oauthentra.com"]
 
 # Kratos Configuration
 kratos_image     = "oryd/kratos"
 kratos_image_tag = "v25.4.0-distroless"
 
-# Cost-optimized settings for dev
-cpu          = 256
-memory       = 512
-desired_count = 1
+
+# Cost-optimized settings for dev (Kratos)
+kratos_cpu         = 256
+kratos_memory      = 512
+kratos_desired_count = 1
 log_retention_days = 7
+
+kratos_public_port = 4433
+kratos_admin_port = 4434
 
 # Security Groups allowed to access admin endpoint (optional)
 allowed_security_group_ids = []
@@ -59,11 +65,10 @@ kratos_environment_vars = [
 ]
 
 # ------------------------------------------------------------------------------
-# Secrets Manager IAM - ARN patterns the task execution role can read
+# Kratos Secrets Manager IAM - ARN patterns the task execution role can read
 # Use * to match secret name suffix (e.g. dev/kratos* matches dev/kratos-ppnJ7z)
-# Required for pulling secrets into containers
 # ------------------------------------------------------------------------------
-secrets_manager_secret_arns = [
+kratos_secrets_manager_secret_arns = [
   "arn:aws:secretsmanager:us-east-1:208527038873:secret:dev/kratos*"
 ]
 
@@ -92,3 +97,28 @@ kratos_secrets = [
     valueFrom = "arn:aws:secretsmanager:us-east-1:1234567890:secret:dev/kratos-xxxxxx:COURIER_SMTP_CONNECTION_URI::"
   }
 ]
+
+# ------------------------------------------------------------------------------
+# Hydra (OAuth2/OIDC) - auth.oauthentra.com
+# ------------------------------------------------------------------------------
+hydra_image     = "oryd/hydra"
+hydra_image_tag = "v25.4.0-distroless"
+
+hydra_domain = "<subdomain>.oauthentra.com"
+
+# Hydra secrets (DSN required - use same or separate DB)
+hydra_secrets_manager_secret_arns = ["arn:aws:secretsmanager:us-east-1:1234567890:secret:dev/hydra*"]
+hydra_secrets = [
+  { name = "DSN", valueFrom = "arn:aws:secretsmanager:us-east-1:1234567890:secret:dev/hydra-xxxxxx:DSN::" }
+]
+
+hydra_cpu          = 256
+hydra_memory       = 512
+hydra_desired_count = 1
+
+hydra_public_port = 4444
+hydra_admin_port = 4445
+
+hydra_environment_vars = []
+
+hydra_s3_config_key = "hydra-config.yaml"
