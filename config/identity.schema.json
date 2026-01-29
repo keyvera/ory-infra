@@ -1,0 +1,88 @@
+{
+  "$id": "https://schemas.oauthentra.com/kratos/identity.schema.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Multi-Tenant Identity Schema",
+  "type": "object",
+  "properties": {
+    "traits": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email",
+          "title": "Email",
+          "minLength": 3,
+          "maxLength": 255,
+          "ory.sh/kratos": {
+            "credentials": {
+              "password": {
+                "identifier": true
+              },
+              "totp": {
+                "account_name": true
+              },
+              "webauthn": {
+                "identifier": true
+              }
+            },
+            "verification": {
+              "via": "email"
+            },
+            "recovery": {
+              "via": "email"
+            }
+          }
+        },
+        "name": {
+          "type": "object",
+          "properties": {
+            "first": {
+              "type": "string",
+              "title": "First Name",
+              "minLength": 1,
+              "maxLength": 100
+            },
+            "last": {
+              "type": "string",
+              "title": "Last Name",
+              "minLength": 1,
+              "maxLength": 100
+            }
+          },
+          "additionalProperties": false
+        },
+        "tenant_id": {
+          "type": "string",
+          "title": "Tenant ID",
+          "description": "The tenant this identity belongs to",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "teams": {
+          "type": "array",
+          "title": "Teams",
+          "description": "List of team IDs the user belongs to",
+          "items": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          },
+          "default": [],
+          "maxItems": 100
+        },
+        "metadata": {
+          "type": "object",
+          "title": "Metadata",
+          "description": "Additional metadata for the identity",
+          "additionalProperties": true
+        }
+      },
+      "required": [
+        "email",
+        "tenant_id"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "traits"
+  ]
+}
