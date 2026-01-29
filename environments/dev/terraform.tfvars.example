@@ -1,0 +1,94 @@
+# Copy this file to terraform.tfvars and fill in the values
+# terraform.tfvars is gitignored and should not be committed
+
+app_name    = "kratos"
+environment = "<dev | prod | qa | test | any>"
+aws_region  = "<region>"
+
+# VPC Configuration
+vpc_id     = "vpc-xxxxxxxxx"
+vpc_cidr   = "10.0.0.0/16"
+
+# Subnet Configuration (public subnets for ALB and ECS - cheapest, security via SGs)
+public_subnet_ids = ["subnet-xxxxxxxxx", "subnet-yyyyyyyyy"]
+
+# Route53 Configuration
+hosted_zone_id = "Z1234567890ABC"
+domain         = "identity.<hostedzone>" # e.g. identity.example.com
+
+# Kratos Configuration
+kratos_image     = "oryd/kratos"
+kratos_image_tag = "v25.4.0-distroless"
+
+# Cost-optimized settings for dev
+cpu          = 256
+memory       = 512
+desired_count = 1
+log_retention_days = 7
+
+# Security Groups allowed to access admin endpoint (optional)
+allowed_security_group_ids = []
+
+# ------------------------------------------------------------------------------
+# Kratos environment variables (non-secret)
+# Static kratos-config.yaml cannot use ${VAR}; these override/supply config.
+# Naming: nested YAML keys → UPPER_SNAKE_CASE (e.g. courier.smtp.connection_uri → COURIER_SMTP_CONNECTION_URI).
+# Arrays: SERVE_PUBLIC_CORS_ALLOWED_ORIGINS_0, _1, ...
+# ------------------------------------------------------------------------------
+kratos_environment_vars = [
+  # Courier (email) - from_address is non-secret; connection_uri goes in kratos_secrets
+  {
+    name  = "COURIER_SMTP_FROM_ADDRESS"
+    value = "noreply@<domain>.com"
+  },
+  # CORS allowed origins (add _1, _2 for more)
+  {
+    name  = "SERVE_PUBLIC_CORS_ALLOWED_ORIGINS_0"
+    value = "https://app.<domain>.com"
+  },
+  # Allowed return URLs
+  {
+    name  = "SELFSERVICE_ALLOWED_RETURN_URLS_0"
+    value = "https://identity.<domain>.com/"
+  },
+  # WebAuthn RP origins (must match rp.id / HTTPS origins)
+  {
+    name  = "SELFSERVICE_METHODS_WEBAUTHN_CONFIG_RP_ORIGINS_0"
+    value = "https://identity.<domain>.com"
+  }
+]
+
+# ------------------------------------------------------------------------------
+# Secrets Manager IAM - ARN patterns the task execution role can read
+# Use * to match secret name suffix (e.g. dev/kratos* matches dev/kratos-ppnJ7z)
+# Required for pulling secrets into containers
+# ------------------------------------------------------------------------------
+secrets_manager_secret_arns = [
+  "arn:aws:secretsmanager:us-east-1:208527038873:secret:dev/kratos*"
+]
+
+# ------------------------------------------------------------------------------
+# Kratos secrets (from AWS Secrets Manager - use valueFrom ARN)
+# Store sensitive values in Secrets Manager; reference by secret ARN + optional JSON key.
+# For key-value secret: use arn:aws:secretsmanager:REGION:ACCOUNT:secret:NAME:key::
+# ------------------------------------------------------------------------------
+# Example: single key-value secret (dev/kratos) - use :KEY_NAME:: for each key
+# Replace -xxxxxx with your secret's AWS-generated suffix
+kratos_secrets = [
+  {
+    name      = "DSN"
+    valueFrom = "arn:aws:secretsmanager:us-east-1:1234567890:secret:dev/kratos-xxxxxx:DSN::"
+  },
+  {
+    name      = "SECRETS_COOKIE"
+    valueFrom = "arn:aws:secretsmanager:us-east-1:1234567890:secret:dev/kratos-xxxxxx:SECRETS_COOKIE::"
+  },
+  {
+    name      = "SECRETS_CIPHER"
+    valueFrom = "arn:aws:secretsmanager:us-east-1:1234567890:secret:dev/kratos-xxxxxx:SECRETS_CIPHER::"
+  },
+  {
+    name      = "COURIER_SMTP_CONNECTION_URI"
+    valueFrom = "arn:aws:secretsmanager:us-east-1:1234567890:secret:dev/kratos-xxxxxx:COURIER_SMTP_CONNECTION_URI::"
+  }
+]

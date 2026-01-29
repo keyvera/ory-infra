@@ -1,0 +1,143 @@
+# Kratos Production Configuration
+# Secrets are injected via environment variables
+# DSN is set via DSN environment variable
+
+serve:
+  public:
+    base_url: https://identity.oauthentra.com
+    cors:
+      enabled: true
+      allowed_origins: []  # Set via SERVE_PUBLIC_CORS_ALLOWED_ORIGINS_0, _1, ... env vars
+      allowed_methods:
+        - GET
+        - POST
+        - PUT
+        - DELETE
+        - PATCH
+        - OPTIONS
+      allowed_headers:
+        - Authorization
+        - Content-Type
+        - X-Requested-With
+        - X-CSRF-Token
+      exposed_headers:
+        - Content-Type
+        - X-CSRF-Token
+      allow_credentials: true
+      max_age: 86400
+    port: 4433
+    host: 0.0.0.0
+  admin:
+    base_url: http://localhost:4434
+    port: 4434
+    host: 0.0.0.0
+
+selfservice:
+  default_browser_return_url: https://identity.oauthentra.com/
+  allowed_return_urls: []  # Set via SELFSERVICE_ALLOWED_RETURN_URLS_0, _1, ... env vars
+  
+  methods:
+    password:
+      enabled: true
+      config:
+        max_breaches: 0
+        ignore_network_errors: false
+        haveibeenpwned_enabled: false
+    totp:
+      enabled: true
+      config:
+        issuer: Oauthentra Identity
+    lookup_secret:
+      enabled: true
+    webauthn:
+      enabled: true
+      config:
+        passwordless: true
+        rp:
+          display_name: "Oauthentra Identity"
+          id: "identity.oauthentra.com"
+          origins: []  # Set via SELFSERVICE_METHODS_WEBAUTHN_CONFIG_RP_ORIGINS_0, _1, ... env vars
+    link:
+      enabled: true
+      config:
+        lifespan: 1h
+    code:
+      enabled: true
+      config:
+        passwordless_enabled: true
+    oidc:
+      enabled: false
+
+  flows:
+    error:
+      ui_url: https://identity.oauthentra.com/error
+    settings:
+      ui_url: https://identity.oauthentra.com/settings
+      privileged_session_max_age: 15m
+      required_aal: highest_available
+    recovery:
+      enabled: true
+      use: code
+      ui_url: https://identity.oauthentra.com/recovery
+      after:
+        default_browser_return_url: https://identity.oauthentra.com/
+    verification:
+      enabled: true
+      use: code
+      ui_url: https://identity.oauthentra.com/verification
+      after:
+        default_browser_return_url: https://identity.oauthentra.com/
+    logout:
+      after:
+        default_browser_return_url: https://identity.oauthentra.com/
+    login:
+      ui_url: https://identity.oauthentra.com/login
+      lifespan: 10m
+      after:
+        default_browser_return_url: https://identity.oauthentra.com/
+    registration:
+      lifespan: 10m
+      ui_url: https://identity.oauthentra.com/registration
+
+hashers:
+  algorithm: argon2
+  argon2:
+    parallelism: 1
+    memory: "128MB"
+    iterations: 3
+    salt_length: 16
+    key_length: 32
+
+session:
+  whoami:
+    required_aal: highest_available
+  cookie:
+    domain: .oauthentra.com
+    path: /
+    same_site: Lax
+    persistent: true
+    secure: "true"
+  lifespan: 720h
+
+identity:
+  default_schema_id: default
+  schemas:
+    - id: default
+      url: file:///etc/config/kratos/identity.schema.json
+
+# Courier configuration for email delivery
+# connection_uri and from_address MUST be set via environment variables (static file cannot substitute):
+#   COURIER_SMTP_CONNECTION_URI - e.g. smtps://user:pass@smtp.example.com:587/?skip_ssl_verify=false
+#   COURIER_SMTP_FROM_ADDRESS   - e.g. noreply@oauthentra.com
+# courier:
+#   smtp:
+#     from_name: Oauthentra Identity
+#     headers:
+#       X-Mailer: Ory Kratos
+
+# Secrets are injected via environment variables
+# SECRETS_COOKIE and SECRETS_CIPHER should be set as comma-separated values
+
+log:
+  level: info
+  format: json
