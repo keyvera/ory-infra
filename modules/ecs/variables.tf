@@ -27,7 +27,7 @@ variable "kratos_image" {
 variable "kratos_image_tag" {
   description = "Kratos Docker image tag"
   type        = string
-  default     = "v25.4.0-distroless"
+  default     = "v25.4.0"  # Alpine (has wget for ECS health checks; distroless lacks shell/wget)
 }
 
 variable "kratos_public_port" {
