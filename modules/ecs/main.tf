@@ -4,7 +4,7 @@ resource "aws_ecs_cluster" "kratos" {
 
   setting {
     name  = "containerInsights"
-    value = "enabled"
+    value = "disabled"
   }
 
   tags = merge(

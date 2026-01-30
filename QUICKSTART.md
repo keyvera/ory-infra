@@ -154,9 +154,10 @@ Database migrations run automatically as an init container when each Kratos task
 
 ### Health Check Fails
 
-1. Ensure DNS has propagated (may take a few minutes)
-2. Check ALB target group health
-3. Verify Kratos is listening on port 4433
+1. **Use Alpine images, not distroless** - ECS container health checks use `wget`; distroless images lack shell/wget. Use `v25.4.0` (Alpine) instead of `v25.4.0-distroless`.
+2. Ensure DNS has propagated (may take a few minutes)
+3. Check ALB target group health
+4. Verify Kratos/Hydra are listening on their public ports (4433, 4444)
 
 ## Next Steps
 

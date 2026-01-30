@@ -27,7 +27,7 @@ variable "hydra_image" {
 variable "hydra_image_tag" {
   description = "Hydra Docker image tag"
   type        = string
-  default     = "v2.4.2"
+  default     = "v25.4.0"  # Alpine (has wget for ECS health checks; distroless lacks shell/wget)
 }
 
 variable "hydra_public_port" {

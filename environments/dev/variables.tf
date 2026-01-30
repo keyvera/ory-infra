@@ -49,9 +49,9 @@ variable "kratos_image" {
 }
 
 variable "kratos_image_tag" {
-  description = "Kratos Docker image tag"
+  description = "Kratos Docker image tag (use Alpine e.g. v25.4.0 for ECS health checks; distroless lacks wget)"
   type        = string
-  default     = "v25.4.0-distroless"
+  default     = "v25.4.0"
 }
 
 variable "kratos_public_port" {
@@ -161,9 +161,9 @@ variable "hydra_image" {
 }
 
 variable "hydra_image_tag" {
-  description = "Hydra Docker image tag"
+  description = "Hydra Docker image tag (use Alpine e.g. v25.4.0 for ECS health checks; distroless lacks wget)"
   type        = string
-  default     = "v2.4.2"
+  default     = "v25.4.0"
 }
 
 variable "hydra_cpu" {
